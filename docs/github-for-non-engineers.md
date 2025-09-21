@@ -169,6 +169,110 @@ PRを使って提案したいとき
 
 用語メモ: 差分（Diff）= 変更前後の違い。PR（Pull Request）= 変更の提案（レビュー用の箱）。Revert = 変更を取り消して元に戻す操作。
 
+## 図で理解するGitのしくみ（Mermaid）
+GitHubはMermaidをそのまま表示できます。図はテキストなので、差分レビューもしやすくメンテが簡単です。
+
+### 全体像（Clone / Pull / Commit / Push / PR）
+どこに“履歴”があり、どの操作でどこへ情報が流れるかの見取り図です。
+
+```mermaid
+graph LR
+  subgraph Local["ローカルPC"]
+    WD["作業ツリー（ファイル）"]
+    IDX["ステージ（Index）"]
+    LREP["ローカルリポジトリ（履歴）"]
+  end
+  subgraph Remote["GitHub（origin）"]
+    RREP["リモートリポジトリ（履歴）"]
+  end
+
+  WD -- git add --> IDX
+  IDX -- git commit --> LREP
+  LREP -- git push --> RREP
+  RREP -- git fetch/pull --> LREP
+  RREP -- git clone --> LREP
+  LREP -- checkout --> WD
+
+  classDef note fill:#f6f6f6,stroke:#ccc,color:#333,font-size:12px;
+  N1["commit: 履歴に保存（メッセージ付き）"]:::note
+  N2["push: ローカルの履歴をGitHubへ送信"]:::note
+  N3["pull: GitHubの更新を取り込み"]:::note
+
+  LREP --- N1
+  LREP --- N2
+  RREP --- N3
+```
+
+### Push と Pull（やりとりの順番）
+実際の“会話の順序”を時系列で表します。
+
+```mermaid
+sequenceDiagram
+  actor User as あなた
+  participant Local as ローカルGit
+  participant GH as GitHub
+
+  User->>Local: 変更（編集）
+  User->>Local: git add / git commit
+  Local->>GH: git push
+  GH-->>Local: 受領（最新化）
+
+  User->>Local: git pull
+  GH-->>Local: 差分を取得
+  Local-->>User: 必要ならマージ/更新
+```
+
+### 最初の一歩（はじめてのフロー）
+クローンからPRまでの最短コースです。
+
+```mermaid
+flowchart LR
+  A[GitHubでリポジトリ確認] --> B[git clone / Desktopでクローン]
+  B --> C[編集]
+  C --> D[git add]
+  D --> E[git commit -m "理由を書く"]
+  E --> F[git push]
+  F --> G[Pull Requestを作成（任意）]
+```
+
+### ブランチとPRの関係
+安全に“分岐して試す”→“提案して戻す”の流れです。
+
+```mermaid
+graph TD
+  main[(main)]
+  feat[[feature/docs-update]]
+  main -->|branch| feat
+  feat -->|PR作成| main
+  main -->|merge| main
+```
+
+### SVG書き出し（任意・配布用）
+スライドやPDFに貼る場合は、MermaidからSVGを出力して併置すると便利です。
+
+1) 手元で出力（Node.js環境）
+- `npm i -D @mermaid-js/mermaid-cli`
+- `npx mmdc -i docs/diagrams/workflow.mmd -o docs/diagrams/workflow.svg`
+
+2) GitHub Actionsで自動化（`.mmd → .svg`）
+```yaml
+name: Build Mermaid SVGs
+on:
+  push:
+    paths: ["docs/diagrams/**/*.mmd"]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i -D @mermaid-js/mermaid-cli
+      - run: |
+          npx mmdc -i docs/diagrams/workflow.mmd -o docs/diagrams/workflow.svg
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: build mermaid svgs"
+```
+
 ## 参考リンク
 - GitHub Desktop: https://desktop.github.com/
 - GitHub Codespaces: https://github.com/features/codespaces
