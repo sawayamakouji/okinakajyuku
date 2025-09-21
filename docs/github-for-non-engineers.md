@@ -75,8 +75,38 @@ description: 「読むだけ」から「書ける・共有できる」に進む�
 - 共同レビュー: PRでコメントを集約、メールやチャットの散逸を防ぐ。
 - クラウド編集: CodespacesでNode.jsやCLIを即利用。PC環境差で悩まない。
 
+## コーディングCLI×GitHub連携の利点
+- 一つの場所で完結: 依頼→編集→差分確認→コミット→Pushまでを対話で実行。
+- 変更が見える: CLIが作った差分はGitHubでレビュー可能・いつでも戻せる。
+- 速度と再現性: 同じプロンプトで誰でも再実行しやすく、作業が早い。
+- 安全な運用: Privateリポジトリ＋最小権限の認証で管理（個人/組織どちらも可）。
+- 自動化に直結: PR作成やCI（Actions）もCLIからトリガー可能。
+
+### 連携プロンプト（例）
+初回セットアップ依頼
+> このリポジトリ https://github.com/USER/REPO をクローンし、`docs/` に `TITLE.md` を作成してください。下の見出し構成で本文を書き、コミットメッセージは「docs: add TITLE」で、`main` に push。必要なら事前に確認を取りながら進めてください。
+
+既存文書の追記依頼
+> `docs/guide.md` の「連携の小ワザ」直後に「コーディングCLI×GitHub連携の利点（箇条書き5点）」と「連携プロンプト（例）」を追記し、コミットメッセージは「docs: update guide with CLI integration」。その後 push。
+
+PRを使って提案したいとき
+> 新規ブランチ `feature/cli-integration` を作成し、上記の追記を行ってください。コミットメッセージは「docs: add CLI integration tips」。タイトル「CLIとGitHub連携の追加」、説明に要約を添えた Pull Request をドラフトで作成。
+
+差分の要約と報告
+> 変更前後の差分を要約し、追加/修正/削除ファイルの一覧と主な意図を3行で説明してください。リスクがあれば併記。
+
+安全確認を徹底したいとき
+> 破壊的操作（削除/上書き）を行う前に必ず確認を取り、`backup/YYYYMMDD` ブランチを切ってから実施してください。終了後に復元手順も記録してください。
+
+トラブル時の対応指示
+> 権限やネットワークで失敗したら、何を試みどこで失敗したかを要約し、代替案（手動手順・PR経由・Codespaces利用）を提示してください。
+
+前提チェック（コマンド不要でOK）
+- 認証: GitHubにログイン済み（HTTPS/SSHいずれか）。
+- 権限: 対象リポジトリへ push 可能、もしくは PR 作成権限あり。
+- 環境: ローカルまたはCodespacesでリポジトリを開いている。
+
 ## 参考リンク
 - GitHub Desktop: https://desktop.github.com/
 - GitHub Codespaces: https://github.com/features/codespaces
 - GitHub Docs: https://docs.github.com/
-
