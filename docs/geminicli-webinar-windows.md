@@ -39,29 +39,98 @@ description: Node.jsとGEMINICLIのセットアップから基本操作、Codesp
 - 今日のゴール: インストール→APIキー設定→3つの基本操作
 - セキュリティ: APIキーはパスワード同等。絶対に共有しない
 
-## 5–12分｜Node.jsインストール（Windows）
-- ダウンロード: https://nodejs.org/ から LTS を選択してインストール
-- インストーラのポイント: “Automatically install the necessary tools”は基本オフでOK
-- 動作確認（PowerShellを開く）
-  - `node -v`（バージョン表示でOK）
-  - `npm -v`
-- トラブル時
-  - コマンドが見つからない → PowerShellを再起動 / 再ログイン
-  - 会社PCで制限 → 管理者に相談、もしくはCodespacesを使う
+## 事前準備：GEMINICLIを使えるようにしよう！
 
-## 12–20分｜GEMINICLIインストール＆APIキー設定（Windows）
-- GEMINICLIのインストール（例）
-  - `npm install -g gemini-cli`
-  - 成功確認: `gemini --version` または `gemini --help`
-- APIキーを環境変数に設定（PowerShell・ユーザー環境）
-  - 永続設定: `setx GEMINI_API_KEY "ここにあなたのAPIキー"`
-  - 反映: 新しいPowerShellを開く（またはPC再起動）
-  - 確認: `echo $env:GEMINI_API_KEY`（表示されればOK）
-- 代替（より確実）
-  - `[Environment]::SetEnvironmentVariable("GEMINI_API_KEY","<キー>","User")` → 新しいPowerShellで反映
-- トラブル時
-  - `gemini`が見つからない → `npm config get prefix` のパスがPATHに含まれているか確認。PowerShell再起動
-  - プロキシ環境 → `npm config set proxy <URL>`（必要な場合）
+このページでは、GEMINI CLIをあなたのWindows PCにインストールして、使えるようにするまでの手順を解説します。
+一つずつ進めていけば、誰でも簡単にセットアップできますので、焦らずに進めていきましょう。
+
+---
+
+### ステップ1：Node.jsをインストールする
+
+GEMINI CLIを動かすために、まずはその土台となる「Node.js」というソフトウェアをインストールします。
+
+1.  **公式サイトからインストーラーをダウンロードする**
+    -   Webブラウザで、[Node.js公式サイト](https://nodejs.org/)にアクセスします。
+    -   画面に大きく表示されている2つのボタンのうち、左側の**「LTS」**と書かれている方をクリックしてください。LTSは「Long Term Support」の略で、長期間サポートされる安定版のことです。
+    -   `[画像：Node.js公式サイトのLTSと書かれたダウンロードボタン]`
+    -   クリックすると、`node-vXX.XX.X-x64.msi`のような名前のファイルがダウンロードされます。
+
+2.  **ダウンロードしたインストーラーを実行する**
+    -   ダウンロードされた`.msi`ファイルをダブルクリックして、インストーラーを起動します。
+    -   "Welcome to the Node.js Setup Wizard"という画面が表示されたら、「Next」をクリックして次に進みます。
+    -   ライセンス同意画面（End-User License Agreement）では、左下のチェックボックスにチェックを入れてから「Next」をクリックします。
+    -   インストール先のフォルダ選択画面はそのままで「Next」をクリックします。
+    -   カスタムセットアップ画面も、特に変更せず「Next」をクリックします。
+    -   **【重要】** "Tools for Native Modules"という画面が表示されます。**"Automatically install the necessary tools."のチェックボックスは、チェックを入れずに**「Next」をクリックしてください。余計なツールのインストールを避けるためです。
+    -   `[画像："Automatically install..."のチェックボックスがオフになっているインストーラー画面]`
+    -   最後に「Install」をクリックします。PCの管理者権限の許可を求められたら「はい」を選択してください。
+    -   インストールが完了すると "Completed the Node.js Setup Wizard" と表示されます。「Finish」をクリックしてインストーラーを閉じます。
+
+3.  **正しくインストールされたか確認する**
+    -   Windowsのスタートメニュー（画面左下のWindowsロゴ）をクリックし、「PowerShell」とキーボードで入力します。
+    -   検索結果に表示された「Windows PowerShell」をクリックして起動します。青い背景のウィンドウが表示されます。
+    -   `[画像：WindowsのスタートメニューでPowerShellを検索している様子]`
+    -   開いた青い画面に、以下のコマンドをコピー＆ペーストしてEnterキーを押します。
+        ```shell
+        node -v
+        ```
+    -   `v20.11.0`のようなバージョン番号が表示されれば、Node.jsのインストールは成功です！
+    -   次に、以下のコマンドも同様に入力してEnterキーを押します。
+        ```shell
+        npm -v
+        ```
+    -   こちらも`10.2.4`のようなバージョン番号が表示されればOKです。
+
+    > **もし「コマンドが見つかりません」とエラーが出たら…**
+    > -   一度PowerShellを閉じて、もう一度起動し直してみてください。
+    > -   PCを再起動すると解決する場合もあります。
+    > -   会社のPCなどで制限がかかっている場合は、情報システム部門の方に相談するか、後述の「GitHub Codespaces」の利用を検討してください。
+
+---
+
+### ステップ2：GEMINI CLIをインストールして、APIキーを設定する
+
+土台の準備ができたので、いよいよ主役のGEMINI CLIをインストールします。
+
+1.  **GEMINI CLIをインストールする**
+    -   先ほど開いた「Windows PowerShell」の画面で、以下のコマンド（例）をコピー＆ペーストしてEnterキーを押します。
+        ```shell
+        npm install -g gemini-cli
+        ```
+    -   `added X packages`のようなメッセージが表示されればインストール成功です。
+    -   正しくインストールされたか、以下のコマンドで確認してみましょう。
+        ```shell
+        gemini --help
+        ```
+    -   `Usage: gemini [options] [command]`から始まるヘルプメッセージが表示されれば、インストールは完璧です！
+
+2.  **APIキーを取得する**
+    -   GEMINI CLIがGoogleのAIと通信するための「合言葉」となるAPIキーを取得します。
+    -   [Google AI Studio](https://aistudio.google.com/app/apikey)にアクセスします。
+    -   Googleアカウントでログインし、「Create API key in new project」をクリックすると、APIキーが生成されます。
+    -   生成されたAPIキーは、パスワードと同じくらい重要なものです。**絶対に他人に教えたり、公開の場に貼り付けたりしないでください。**
+    -   `[画像：Google AI StudioでAPIキーが生成された画面]`
+    -   生成されたキーの右側にあるコピーボタンをクリックして、キーをコピーしておきます。
+
+3.  **APIキーをPCに設定する**
+    -   取得したAPIキーを、あなたのPCに「環境変数」として設定します。こうすることで、毎回APIキーを入力する手間が省けます。
+    -   PowerShellで、以下のコマンドを実行します。**「ここにあなたのAPIキー」の部分を、先ほどコピーした実際のキーに置き換えてください。**
+        ```shell
+        setx GEMINI_API_KEY "ここにあなたのAPIキー"
+        ```
+    -   **【重要】** コマンドを実行したら、**一度PowerShellのウィンドウを閉じ、新しいPowerShellウィンドウを開いてください。** これで設定がPCに反映されます。
+    -   新しいPowerShellで、以下のコマンドを実行して設定が反映されたか確認します。
+        ```shell
+        echo $env:GEMINI_API_KEY
+        ```
+    -   先ほど設定したAPIキーが表示されれば、すべての設定が完了です！
+
+    > **もし`gemini`コマンドが見つからないとエラーが出たら…**
+    > -   まずはPowerShellを再起動してみてください。
+    > -   それでもダメな場合は、PCの再起動を試してみてください。
+
+お疲れ様でした！これで、あなたのPCでいつでもGEMINI CLIを呼び出せるようになりました。
 
 ## 20–30分｜基本の使い方デモ
 - 単発の質問（プロンプト）
