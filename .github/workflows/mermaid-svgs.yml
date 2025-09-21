@@ -1,0 +1,29 @@
+name: Build Mermaid SVGs
+on:
+  push:
+    paths:
+      - 'docs/diagrams/**/*.mmd'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install mermaid-cli
+        run: npm i -g @mermaid-js/mermaid-cli
+      - name: Render all .mmd to .svg
+        shell: bash
+        run: |
+          set -e
+          shopt -s nullglob
+          for f in docs/diagrams/*.mmd; do
+            out="${f%.mmd}.svg"
+            echo "Render $f -> $out"
+            mmdc -i "$f" -o "$out"
+          done
+      - name: Commit SVGs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: build mermaid svgs'
+

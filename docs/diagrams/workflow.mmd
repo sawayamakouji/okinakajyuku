@@ -1,0 +1,26 @@
+graph LR
+  subgraph Local["ローカルPC"]
+    WD["作業ツリー（ファイル）"]
+    IDX["ステージ（Index）"]
+    LREP["ローカルリポジトリ（履歴）"]
+  end
+  subgraph Remote["GitHub（origin）"]
+    RREP["リモートリポジトリ（履歴）"]
+  end
+
+  WD -- git add --> IDX
+  IDX -- git commit --> LREP
+  LREP -- git push --> RREP
+  RREP -- git fetch/pull --> LREP
+  RREP -- git clone --> LREP
+  LREP -- checkout --> WD
+
+  classDef note fill:#f6f6f6,stroke:#ccc,color:#333,font-size:12px;
+  N1["commit: 履歴に保存（メッセージ付き）"]:::note
+  N2["push: ローカルの履歴をGitHubへ送信"]:::note
+  N3["pull: GitHubの更新を取り込み"]:::note
+
+  LREP --- N1
+  LREP --- N2
+  RREP --- N3
+

@@ -1,0 +1,14 @@
+sequenceDiagram
+  actor User as あなた
+  participant Local as ローカルGit
+  participant GH as GitHub
+
+  User->>Local: 変更（編集）
+  User->>Local: git add / git commit
+  Local->>GH: git push
+  GH-->>Local: 受領（最新化）
+
+  User->>Local: git pull
+  GH-->>Local: 差分を取得
+  Local-->>User: 必要ならマージ/更新
+
